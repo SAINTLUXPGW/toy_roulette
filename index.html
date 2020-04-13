@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Roulette</title>
+	<link rel="shortcut icon" type="image/png" href="shotterudLogo.png">
+	<link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body onload="init()">
+	<center>
+		<div>
+			<h1 class="shotterudTitle">Roulette</h1>
+		</div>
+		<div>
+			<input id="inputName" placeholder="Name">
+			<button id="addButton" onclick="addName()">Add</button>
+		</div>
+		<div>
+			<ul id="names">
+			</ul>
+		</div>
+	</center>
+	<div class="rouletteContainer">
+		<div class="line">
+		</div>
+		<div id="fillMeUpDaddy" class="roulette">
+		</div>
+	</div>
+	<br><br><br><br><br><br><br><br>
+	<center>
+		<div>
+			<button id="startButton" onclick="play()">Roll</button>
+		</div>
+	</center>
+	<br><br>
+	<div>
+		<center>
+			<button onclick="clearAll(-1)">Clear all</button>
+		</center>
+	</div>
+	<div id="winners" class="winners"></div>
+	<br><br>
+	<!-- <div>
+			<h1 class="shotterudTitle" style="font-size: 75px; text-align: center;">Random timer</h1>
+		</div>
+		<div>
+			<center>
+				<input id="timerName" placeholder="Name">
+			</center>
+		</div>
+		<br>
+		<div id="minMax">
+			<div>
+					<input id="min" type="number" placeholder="min min" style="align-self: flex-start;">
+			</div>
+			<div>
+				<h2 id="arrow"> to </h2>
+			</div>
+			<div>
+					<input id="max" type="number" placeholder="max min" style="align-self: flex-end;">
+			</div>
+		</div>
+		<br>
+		<center>
+			<div id="addTimer">
+				<button onclick="addTimer()">Add timer</button>
+			</div>
+			<br>
+			<div id="removeButtons"></div>
+			<br><br>
+		<div id="timerContainer"></div> -->
+	</center>
+</body>
+<script>
+	var amountOfBoxes = 100;
+
+	var order = [];
+
+	function init() {
+		let roulette = document.getElementById("fillMeUpDaddy");
+		roulette.innerHTML = "";
+		let tempBets = [
+			["player1", "red"],
+			["player2", "yellowgreen"]
+		];
+		for (var i = 0; i < amountOfBoxes; i++) {
+			var randomPlayer = rand(0, tempBets.length)
+			var node = document.createElement("div");
+			var h3 = document.createElement("h3");
+			h3.innerHTML = tempBets[randomPlayer][0];
+			h3.style.backgroundColor = tempBets[randomPlayer][1];
+			node.appendChild(h3);
+			roulette.appendChild(node);
+		}
+	}
+
+	function rand(min, max) {
+		return Math.floor(Math.random() * (max - min)) + min;
+	}
+
+	var colors = ['aqua', 'fuchsia', 'gray', 'green',
+		'lime', 'maroon', 'olive', 'orange', 'purple', 'red',
+		'silver', 'teal', 'white', 'yellow', '#e6194b', '#3cb44b', '#ffe119',
+		'#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c',
+		'#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000',
+		'#aaffc3', '#808000', '#ffd8b1', '#808080', '#ffffff',
+	];
+
+	var width = 80;
+
+	var bets = [];
+
+	function play() {
+		//add sound if you want
+		//var audio = new Audio('spin.mp3');
+		//audio.play();
+		var offset = rand(0, amountOfBoxes * 140 - 180) + 180;
+		document.getElementById("fillMeUpDaddy").style.left = -(offset - 180) + "px";
+
+		let chosenPlayer = document.createElement("div");
+		chosenPlayer.style.backgroundColor = bets[order[parseInt(offset / 140)]][1];
+		chosenPlayer.innerHTML = bets[order[parseInt(offset / 140)]][0];
+		setTimeout(function () {
+			document.getElementById("winners").appendChild(chosenPlayer);
+			document.getElementById("fillMeUpDaddy").style.transitionDuration = "0s";
+			document.getElementById("fillMeUpDaddy").style.left = "0px";
+			setTimeout(function () {
+				document.getElementById("fillMeUpDaddy").style.transitionDuration = "5s";
+			}, 50)
+		}, 5500)
+	}
+
+	function playTimer(whatTimer, min, max) {
+		var time = rand(min * 60000, max * 60000);
+		setTimeout(function () {
+			//add sound if you want
+			//var audio = new Audio('spin.mp3');
+			//audio.play();
+			var offset = rand(0, amountOfBoxes * 140 - 180) + 180;
+			document.getElementById("r" + whatTimer).style.left = -(offset - 180) + "px";
+
+			let chosenPlayer = document.createElement("div");
+			chosenPlayer.style.backgroundColor = timerBets[whatTimer][timerOrder[whatTimer][parseInt(offset /
+				140)]][1];
+			chosenPlayer.innerHTML = timerBets[whatTimer][timerOrder[whatTimer][parseInt(offset / 140)]][0];
+			setTimeout(function () {
+				document.getElementById("w" + whatTimer).appendChild(chosenPlayer);
+				document.getElementById("r" + whatTimer).style.transitionDuration = "0s";
+				document.getElementById("r" + whatTimer).style.left = "0px";
+				setTimeout(function () {
+					document.getElementById("r" + whatTimer).style.transitionDuration = "5s";
+				}, 50)
+			}, 5500)
+			playTimer(whatTimer, min, max);
+		}, time)
+	}
+
+	var amountOfTimers = 0;
+	var timerBets = [];
+	var timerOrder = [];
+
+	function addTimer() {
+		var min = document.getElementById("min").value;
+		var max = document.getElementById("max").value;
+
+		if (min.length == 0) min = 0;
+
+		if (amountOfPlayers <= 0) {
+			alert("ingen spillere");
+			return 0;
+		} else if (max.length == 0) {
+			alert("Vennlist fyll inn en max verdi");
+			return 0;
+		} else if (max < 0 || min < 0) {
+			alert("Ingen negative tall vennligst");
+			return 0;
+		} else if (max < min) {
+			alert("Max må være større enn min");
+			return 0;
+		} else {
+			var rouletteContainer = document.createElement("div");
+			rouletteContainer.className = "rouletteContainer";
+			rouletteContainer.style.marginTop = 100 + 400 * amountOfTimers + "px";
+
+			var line = document.createElement("div");
+			line.className = "line";
+
+			var roulette = document.createElement("div");
+			roulette.className = "roulette";
+			roulette.id = "r" + amountOfTimers;
+
+			timerBets[amountOfTimers] = [];
+			for (var i = 0; i < bets.length; i++) {
+				if (bets[i] != 0) {
+					timerBets[amountOfTimers].push([bets[i][0], bets[i][1]]);
+				}
+			}
+
+			timerOrder[amountOfTimers] = [];
+
+			for (var i = 0; i < amountOfBoxes; i++) {
+				var randomPlayer = rand(0, timerBets[amountOfTimers].length);
+				timerOrder[amountOfTimers].push(randomPlayer);
+				var node = document.createElement("div");
+				var h3 = document.createElement("h3");
+				h3.innerHTML = timerBets[amountOfTimers][randomPlayer][0];
+				node.style.backgroundColor = timerBets[amountOfTimers][randomPlayer][1];
+				node.appendChild(h3);
+				roulette.appendChild(node);
+			}
+
+			rouletteContainer.appendChild(line);
+			rouletteContainer.appendChild(roulette);
+
+			var winners = document.createElement("div");
+			winners.id = "w" + amountOfTimers;
+			winners.className = "winners";
+			winners.style.marginTop = 250 + amountOfTimers * 400 + "px";
+			winners.style.height = "200px";
+			amountOfTimers++;
+
+			var removeAllButton = document.createElement("button");
+			var name = document.getElementById("timerName").value;
+			if (name == "") {
+				name = "Timer nr." + amountOfTimers;
+			}
+			removeAllButton.innerHTML = "Clear " + name;
+			document.getElementById("timerName").value = "";
+			removeAllButton.style.marginLeft = "5px";
+			(function (value) {
+				removeAllButton.addEventListener("click", function () {
+					clearAll(value);
+				}, false);
+			})(amountOfTimers - 1);
+			document.getElementById("removeButtons").appendChild(removeAllButton);
+
+			document.getElementById("timerContainer").appendChild(rouletteContainer);
+			document.getElementById("timerContainer").appendChild(winners);
+			document.getElementById("timerContainer").appendChild(removeAllButton);
+
+			playTimer(amountOfTimers - 1, min, max);
+		}
+
+		/*
+		<div class="rouletteContainer">
+			<div class="line">
+			</div>
+			<div id="fillMeUpDaddy" class="roulette">
+			</div>
+		</div>
+		*/
+	}
+
+	function removeName(playerToRemove) {
+		bets[playerToRemove] = 0;
+		document.getElementById("n" + playerToRemove).remove();
+		amountOfPlayers--;
+		refreshRoulette();
+	}
+
+	function clearAll(winnerToClear) {
+		if (winnerToClear == -1) {
+			document.getElementById("winners").innerHTML = "";
+			return true;
+		} else {
+			document.getElementById("w" + winnerToClear).innerHTML = "";
+		}
+	}
+
+	function addName() {
+		var node = document.createElement("LI");
+		var name = document.getElementById("inputName").value
+		document.getElementById("inputName").value = ""
+		if (name != "") {
+			var textnode = document.createTextNode(name);
+			let color = colors[rand(0, colors.length - 1)];
+			node.style.backgroundColor = color;
+			node.className = "playerName";
+			node.id = "n" + bets.length;
+			(function (value) {
+				node.addEventListener("click", function () {
+					removeName(value);
+				}, false);
+			})(bets.length);
+
+			node.appendChild(textnode);
+			document.getElementById("names").appendChild(node);
+			bets.push([name, color]);
+
+			amountOfPlayers++;
+			refreshRoulette();
+		}
+	}
+
+	var amountOfPlayers = 0;
+
+	function refreshRoulette() {
+		let roulette = document.getElementById("fillMeUpDaddy");
+		roulette.innerHTML = "";
+		order = [];
+
+		if (amountOfPlayers <= 0) {
+			return 0;
+		}
+
+		for (var i = 0; i < amountOfBoxes; i++) {
+			var randomPlayer = rand(0, bets.length);
+			while (bets[randomPlayer] == 0) {
+				randomPlayer = rand(0, bets.length);
+			}
+			order.push(randomPlayer);
+			var node = document.createElement("div");
+			var h3 = document.createElement("h3");
+			h3.innerHTML = bets[randomPlayer][0];
+			node.style.backgroundColor = bets[randomPlayer][1];
+			node.appendChild(h3);
+			roulette.appendChild(node);
+		}
+	}
+
+	document.getElementById("inputName").addEventListener("keyup", function (event) {
+		if (event.keyCode == 13) {
+			document.getElementById("addButton").click();
+		}
+	})
+	document.getElementById("max").addEventListener("keyup", function (event) {
+		if (event.keyCode == 13) {
+			addTimer();
+		}
+	})
+</script>
+
+</html>
